@@ -3,10 +3,12 @@
 ## 镜像地址
 
 ```
-ghcr.io/tsinhzl/kiro2cc-proxy:latest
+ghcr.io/mizaawa/kiro2cc-proxy:latest
 ```
 
 ## 部署步骤
+
+> 首次使用 fork 时，先在仓库 **Actions** 页面启用工作流并推送一次 `master`。等待 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 完成后，在 GHCR 包的 **Package settings → Change visibility** 中设为 **Public**，Zeabur 才能匿名拉取镜像。
 
 ### 1. 创建服务
 
@@ -42,7 +44,7 @@ Add Service → Prebuilt Image → 输入上方镜像地址
 
 ## 版本标签
 
-- `latest` — 打 `v*` tag 时更新（正式版本）
+- `latest` — 每次推送到 `master` 或推送 `v*` tag 时更新
 - `beta` — 每次推送到 `master` 分支时更新
 
 ## 常见问题
@@ -53,9 +55,4 @@ Add Service → Prebuilt Image → 输入上方镜像地址
 
 ### 镜像显示损坏
 
-确认使用的标签存在。首次部署前需要先打一个 `v*` tag 触发构建才会生成 `latest` 标签。
-
-
-502: SERVICE_UNAVAILABLE
-
-https://kirofds1.zeabur.app/admin
+确认 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 已成功完成，并在 [GHCR 镜像页](https://github.com/mizaawa/kiro2cc-proxy/pkgs/container/kiro2cc-proxy) 确认 `latest` 标签存在。

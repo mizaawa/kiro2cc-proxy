@@ -2,9 +2,12 @@
 
 **A Rust-based Anthropic Claude API-compatible proxy that converts Anthropic API requests into Kiro API requests.**
 
-[![Tests](https://github.com/TsinHzl/kiro2cc-proxy/actions/workflows/test.yaml/badge.svg)](https://github.com/TsinHzl/kiro2cc-proxy/actions/workflows/test.yaml)
-[![codecov](https://codecov.io/gh/TsinHzl/kiro2cc-proxy/graph/badge.svg)](https://codecov.io/gh/TsinHzl/kiro2cc-proxy)
+[![Tests](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/test.yaml/badge.svg)](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/test.yaml)
+[![Docker](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml/badge.svg)](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml)
+[![GHCR](https://img.shields.io/badge/GHCR-latest-blue?logo=docker)](https://github.com/mizaawa/kiro2cc-proxy/pkgs/container/kiro2cc-proxy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#-license)
+
+[Repository](https://github.com/mizaawa/kiro2cc-proxy) · [Releases](https://github.com/mizaawa/kiro2cc-proxy/releases) · [Docker Image](https://github.com/mizaawa/kiro2cc-proxy/pkgs/container/kiro2cc-proxy) · [Deployment Guide](#-server-deployment-linux)
 
 **🇺🇸 English** | **[🇨🇳 中文](README.md)**
 
@@ -85,7 +88,7 @@ source "$HOME/.cargo/env"
 ### Step 2: Get the Code
 
 ```bash
-git clone https://github.com/TsinHzl/kiro2cc-proxy.git
+git clone https://github.com/mizaawa/kiro2cc-proxy.git
 cd kiro2cc-proxy
 ```
 
@@ -189,7 +192,7 @@ git -v
 ### Step 2: Get the Code
 
 ```powershell
-git clone https://github.com/TsinHzl/kiro2cc-proxy.git
+git clone https://github.com/mizaawa/kiro2cc-proxy.git
 cd kiro2cc-proxy
 ```
 
@@ -274,9 +277,11 @@ Press `Ctrl+C` in the PowerShell window, or close the window.
 
 **Requirements**: Docker and Docker Compose installed on the server.
 
+> **First deployment from this fork**: enable workflows on the repository's **Actions** page, push once to `master`, and wait for the [Docker workflow](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) to finish. After GHCR creates the package for the first time, open **Package settings → Change visibility** and make it **Public** so deployment platforms can pull it anonymously. Until the image exists, the repository's Compose file falls back to building the Dockerfile locally.
+
 ```bash
 # 1. Clone the repo
-git clone https://github.com/TsinHzl/kiro2cc-proxy.git /opt/kiro2cc-proxy
+git clone https://github.com/mizaawa/kiro2cc-proxy.git /opt/kiro2cc-proxy
 cd /opt/kiro2cc-proxy
 
 # 2. Create config file (note: config lives in data/, not data/config/)
@@ -325,7 +330,7 @@ docker compose pull
 docker compose down && docker compose up -d
 ```
 
-> Each time a new tag (e.g. `v1.x.x`) is pushed, GitHub Actions automatically builds and pushes a new image to `ghcr.io`. `docker compose pull` fetches the latest `latest` image.
+> Every push to `master` and every new tag (for example `v1.x.x`) builds and publishes `ghcr.io/mizaawa/kiro2cc-proxy:latest`. See the [Docker workflow](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) and the [GHCR package](https://github.com/mizaawa/kiro2cc-proxy/pkgs/container/kiro2cc-proxy) for status and releases.
 
 ### Option 2: systemd One-Click Install
 
@@ -333,7 +338,7 @@ For running the binary directly without Docker.
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/TsinHzl/kiro2cc-proxy.git /opt/kiro2cc-proxy-src
+git clone https://github.com/mizaawa/kiro2cc-proxy.git /opt/kiro2cc-proxy-src
 cd /opt/kiro2cc-proxy-src
 
 # 2. Create config

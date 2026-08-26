@@ -2,9 +2,12 @@
 
 **将 Anthropic Claude API 请求转换为 Kiro API 请求的 Rust 代理服务**
 
-[![Tests](https://github.com/TsinHzl/kiro2cc-proxy/actions/workflows/test.yaml/badge.svg)](https://github.com/TsinHzl/kiro2cc-proxy/actions/workflows/test.yaml)
-[![codecov](https://codecov.io/gh/TsinHzl/kiro2cc-proxy/graph/badge.svg)](https://codecov.io/gh/TsinHzl/kiro2cc-proxy)
+[![Tests](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/test.yaml/badge.svg)](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/test.yaml)
+[![Docker](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml/badge.svg)](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml)
+[![GHCR](https://img.shields.io/badge/GHCR-latest-blue?logo=docker)](https://github.com/mizaawa/kiro2cc-proxy/pkgs/container/kiro2cc-proxy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#-license)
+
+[仓库主页](https://github.com/mizaawa/kiro2cc-proxy) · [版本更新](https://github.com/mizaawa/kiro2cc-proxy/releases) · [Docker 镜像](https://github.com/mizaawa/kiro2cc-proxy/pkgs/container/kiro2cc-proxy) · [部署指南](#-服务器部署linux)
 
 **[🇺🇸 English](README.en.md)** | **🇨🇳 中文**
 
@@ -85,7 +88,7 @@ source "$HOME/.cargo/env"
 ### 第二步：获取项目代码
 
 ```bash
-git clone https://github.com/TsinHzl/kiro2cc-proxy.git
+git clone https://github.com/mizaawa/kiro2cc-proxy.git
 cd kiro2cc-proxy
 ```
 
@@ -191,7 +194,7 @@ git -v
 ### 第二步：获取项目代码
 
 ```powershell
-git clone https://github.com/TsinHzl/kiro2cc-proxy.git
+git clone https://github.com/mizaawa/kiro2cc-proxy.git
 cd kiro2cc-proxy
 ```
 
@@ -278,9 +281,11 @@ Region [默认: us-east-1]:
 
 **前置要求**：服务器已安装 Docker 和 Docker Compose。
 
+> **Fork 首次部署**：先在仓库的 **Actions** 页面启用工作流并推送一次 `master`，等待 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 完成。首次生成 GHCR 包后，在包的 **Package settings → Change visibility** 中设为 **Public**，否则部署平台无法匿名拉取镜像。镜像尚未发布时，仓库自带的 Compose 配置会回退到本地 Dockerfile 构建。
+
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/TsinHzl/kiro2cc-proxy.git /opt/kiro2cc-proxy
+git clone https://github.com/mizaawa/kiro2cc-proxy.git /opt/kiro2cc-proxy
 cd /opt/kiro2cc-proxy
 
 # 2. 创建配置文件（注意：配置文件在 data/ 目录下，不是 data/config/）
@@ -329,7 +334,7 @@ docker compose pull
 docker compose down && docker compose up -d
 ```
 
-> **说明**：每次推送新 tag（如 `v1.x.x`）后，GitHub Actions 会自动构建并推送新镜像到 `ghcr.io`。`docker compose pull` 会拉取最新的 `latest` 镜像。
+> **说明**：每次推送到 `master` 或推送新 tag（如 `v1.x.x`）后，GitHub Actions 都会构建并推送 `ghcr.io/mizaawa/kiro2cc-proxy:latest`。构建状态见 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml)，已发布版本见 [GHCR 镜像页](https://github.com/mizaawa/kiro2cc-proxy/pkgs/container/kiro2cc-proxy)。
 
 ### 方式二：systemd 一键安装
 
@@ -337,7 +342,7 @@ docker compose down && docker compose up -d
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/TsinHzl/kiro2cc-proxy.git /opt/kiro2cc-proxy-src
+git clone https://github.com/mizaawa/kiro2cc-proxy.git /opt/kiro2cc-proxy-src
 cd /opt/kiro2cc-proxy-src
 
 # 2. 创建配置文件

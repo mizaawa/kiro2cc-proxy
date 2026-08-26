@@ -581,7 +581,7 @@ export function ApiKeysPanel({ onViewDetail }: ApiKeysPanelProps) {
               {t('apiKeys.serviceRunningTag')}
             </span>
             <a
-              href="https://github.com/TsinHzl/kiro2cc-proxy#readme"
+              href="https://github.com/mizaawa/kiro2cc-proxy#readme"
               target="_blank"
               rel="noopener noreferrer"
               className="group inline-flex h-[31px] items-center gap-1.5 rounded-[7px] px-[11px] text-[12.5px] font-medium text-ink-2 transition-colors hover:bg-surface-3 hover:text-ink"

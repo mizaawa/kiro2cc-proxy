@@ -152,12 +152,14 @@ jobs:
         env:
           IMAGE_REF: ghcr.io/${{ env.IMAGE_OWNER }}/kiro2cc-proxy
           VERSION: ${{ needs.version.outputs.version }}
-          TAG_ALIAS: ${{ needs.version.outputs.is_beta == 'true' && 'beta' || 'latest' }}
+          IS_BETA: ${{ needs.version.outputs.is_beta }}
         working-directory: /tmp/digests
         run: |
-          docker buildx imagetools create \
-            -t "$IMAGE_REF:$VERSION" \
-            -t "$IMAGE_REF:$TAG_ALIAS" \
+          TAGS=(-t "$IMAGE_REF:$VERSION" -t "$IMAGE_REF:latest")
+          if [ "$IS_BETA" = "true" ]; then
+            TAGS+=(-t "$IMAGE_REF:beta")
+          fi
+          docker buildx imagetools create "${TAGS[@]}" \
             $(printf "$IMAGE_REF@sha256:%s " *)
 
       - name: Inspect image

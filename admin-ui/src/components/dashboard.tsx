@@ -935,7 +935,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
         <div className={`flex h-full flex-col transition-opacity duration-100 ${sidebarContentFading ? 'opacity-0' : 'opacity-100'}`}>
         <div className={`flex items-center border-b border-hairline ${sidebarContentCollapsed ? 'flex-col gap-2 px-2 py-3' : 'gap-2.5 px-4 pt-4 pb-3.5'}`}>
           <a
-            href="https://github.com/TsinHzl/kiro2cc-proxy"
+            href="https://github.com/mizaawa/kiro2cc-proxy"
             target="_blank"
             rel="noopener noreferrer"
             className={`flex items-center group min-w-0 ${sidebarContentCollapsed ? '' : 'gap-2.5'}`}
@@ -1059,7 +1059,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
           {/* 加载中 / 请求失败时连同版本号一并隐藏，只留灰点，避免展示 `v...` 这类无效版本 */}
           {!sidebarContentCollapsed && serverHealthy && (
             <a
-              href="https://github.com/TsinHzl/kiro2cc-proxy"
+              href="https://github.com/mizaawa/kiro2cc-proxy/releases"
               target="_blank"
               rel="noopener noreferrer"
               className="truncate text-[10.5px] text-ink-3 hover:text-brand transition-colors"
@@ -1145,7 +1145,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
                 {t('dashboard.autoRefreshTag', { seconds: Math.round(CREDENTIALS_REFETCH_INTERVAL_MS / 1000) })}
               </span>
               <a
-                href="https://github.com/TsinHzl/kiro2cc-proxy#readme"
+                href="https://github.com/mizaawa/kiro2cc-proxy#readme"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex h-[31px] items-center gap-1.5 rounded-[7px] px-[11px] text-[12.5px] font-medium text-ink-2 transition-colors hover:bg-surface-3 hover:text-ink"

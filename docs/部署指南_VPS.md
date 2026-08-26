@@ -3,7 +3,7 @@
 ## 镜像地址
 
 ```
-ghcr.io/tsinhzl/kiro2cc-proxy:latest
+ghcr.io/mizaawa/kiro2cc-proxy:latest
 ```
 
 ## 前置要求
@@ -19,6 +19,8 @@ curl -fsSL https://get.docker.com | sh
 
 ## 部署步骤
 
+> 首次使用 fork 时，先在仓库 **Actions** 页面启用工作流并推送一次 `master`。等待 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 完成后，在 GHCR 包的 **Package settings → Change visibility** 中设为 **Public**，服务器才能匿名拉取镜像。
+
 ### 1. 创建项目目录
 
 ```bash
@@ -31,7 +33,7 @@ mkdir -p ~/kiro2cc-proxy/data
 cat > ~/kiro2cc-proxy/docker-compose.yml << 'EOF'
 services:
   kiro2cc-proxy:
-    image: ghcr.io/tsinhzl/kiro2cc-proxy:latest
+    image: ghcr.io/mizaawa/kiro2cc-proxy:latest
     container_name: kiro2cc-proxy
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -98,7 +100,7 @@ ssh -L 5678:127.0.0.1:5678 -i /path/to/your/private-key root@服务器IP
 
 ## 版本标签
 
-- `latest` — 打 `v*` tag 时更新（正式版本）
+- `latest` — 每次推送到 `master` 或推送 `v*` tag 时更新
 - `beta` — 每次推送到 `master` 分支时更新
 
 ## 常用运维命令
@@ -149,7 +151,7 @@ New API 配 4 个渠道，自动负载均衡。50 并发分散到 4 个 IP，每
 ```yaml
 services:
   kiro2cc-proxy-1:
-    image: ghcr.io/tsinhzl/kiro2cc-proxy:latest
+    image: ghcr.io/mizaawa/kiro2cc-proxy:latest
     container_name: kiro2cc-proxy-1
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -160,7 +162,7 @@ services:
     restart: unless-stopped
 
   kiro2cc-proxy-2:
-    image: ghcr.io/tsinhzl/kiro2cc-proxy:latest
+    image: ghcr.io/mizaawa/kiro2cc-proxy:latest
     container_name: kiro2cc-proxy-2
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -239,7 +241,7 @@ docker compose pull && docker compose up -d
 docker ps --format "{{.Image}}"
 ```
 
-正确的镜像地址为 `ghcr.io/tsinhzl/kiro2cc-proxy:latest`。如果使用了其他 owner 的镜像（如 `dev-longshun`），拉取的是别人发布的版本，不会包含本项目的最新改动。
+正确的镜像地址为 `ghcr.io/mizaawa/kiro2cc-proxy:latest`。如果使用了其他 owner 的镜像，拉取的不是本仓库发布的版本，不会包含本项目的最新改动。
 
 ### 服务器配置低，无法本地构建
 
@@ -250,4 +252,4 @@ docker compose pull
 docker compose up -d
 ```
 
-镜像在每次打 `v*` tag 时由 GitHub Actions 自动构建并推送到 `ghcr.io/tsinhzl/kiro2cc-proxy:latest`。
+镜像在每次推送到 `master` 或推送 `v*` tag 时由 [GitHub Actions](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 自动构建并推送到 `ghcr.io/mizaawa/kiro2cc-proxy:latest`。
