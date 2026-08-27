@@ -1,18 +1,16 @@
 # Zeabur 部署指南
 
-## 镜像地址
+## 构建方式
 
-```
-ghcr.io/mizaawa/kiro2cc-proxy:latest
-```
+使用 GitHub 仓库源码部署，由 Zeabur 根据仓库根目录的 Dockerfile 构建镜像，不使用 GHCR 预构建镜像。
 
 ## 部署步骤
 
-> 首次使用 fork 时，先在仓库 **Actions** 页面启用工作流并推送一次 `master`。等待 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 完成后，在 GHCR 包的 **Package settings → Change visibility** 中设为 **Public**，Zeabur 才能匿名拉取镜像。Zeabur 使用预构建 GHCR 镜像，不执行本地 Dockerfile 编译。
+> 在 Zeabur 选择 Git 仓库部署，并连接 `mizaawa/kiro2cc-proxy`。Dockerfile 默认使用单任务 Cargo 编译和低内存 Docker profile。
 
 ### 1. 创建服务
 
-Add Service → Prebuilt Image → 输入上方镜像地址
+Add Service → Git → 选择 `mizaawa/kiro2cc-proxy` → 使用根目录 Dockerfile
 
 ### 2. 挂载持久化卷
 
@@ -40,12 +38,7 @@ Add Service → Prebuilt Image → 输入上方镜像地址
 
 - **环境变量** — Config File 已提供配置，无需设置
 - **启动命令（Command）** — 镜像内置，无需填写
-- **Dockerfile** — 预构建镜像部署不适用
-
-## 版本标签
-
-- `latest` — 每次推送到 `master` 或推送 `v*` tag 时更新
-- `beta` — 每次推送到 `master` 分支时更新
+- **Dockerfile** — 使用仓库根目录的 Dockerfile
 
 ## 常见问题
 
@@ -53,6 +46,6 @@ Add Service → Prebuilt Image → 输入上方镜像地址
 
 确保 `credentials.json` **没有**被添加到 Config File 中。Zeabur 的 Config File 会以只读方式挂载，覆盖持久化卷上的同名文件，导致应用无法写入凭据数据。详见 [排查记录](troubleshooting/排障指南_Zeabur只读挂载问题.md)。
 
-### 镜像显示损坏
+### 构建内存不足
 
-确认 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 已成功完成，并在 [GHCR 镜像页](https://github.com/mizaawa/kiro2cc-proxy/pkgs/container/kiro2cc-proxy) 确认 `latest` 标签存在。
+确认部署使用仓库最新 Dockerfile。默认 `CARGO_BUILD_JOBS=1`，并关闭 Docker 构建中的 LTO，以降低 Rust 编译峰值内存。

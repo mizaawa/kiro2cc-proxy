@@ -4,10 +4,9 @@
 
 [![Tests](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/test.yaml/badge.svg)](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/test.yaml)
 [![Docker](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml/badge.svg)](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml)
-[![GHCR](https://img.shields.io/badge/GHCR-latest-blue?logo=docker)](https://github.com/mizaawa/kiro2cc-proxy/pkgs/container/kiro2cc-proxy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#-license)
 
-[Repository](https://github.com/mizaawa/kiro2cc-proxy) · [Releases](https://github.com/mizaawa/kiro2cc-proxy/releases) · [Docker Image](https://github.com/mizaawa/kiro2cc-proxy/pkgs/container/kiro2cc-proxy) · [Deployment Guide](#-server-deployment-linux)
+[Repository](https://github.com/mizaawa/kiro2cc-proxy) · [Releases](https://github.com/mizaawa/kiro2cc-proxy/releases) · [Dockerfile](https://github.com/mizaawa/kiro2cc-proxy/blob/master/Dockerfile) · [Deployment Guide](#-server-deployment-linux)
 
 **🇺🇸 English** | **[🇨🇳 中文](README.md)**
 
@@ -277,7 +276,7 @@ Press `Ctrl+C` in the PowerShell window, or close the window.
 
 **Requirements**: Docker and Docker Compose installed on the server.
 
-> **First deployment from this fork**: enable workflows on the repository's **Actions** page, push once to `master`, and wait for the [Docker workflow](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) to finish. After GHCR creates the package for the first time, open **Package settings → Change visibility** and make it **Public** so deployment platforms can pull it anonymously. The default `docker-compose.yml` only pulls GHCR and never compiles Rust on the server.
+> **Deployment mode**: Docker deployment uses a local source build and does not depend on GHCR. `docker-compose.yml` includes the Dockerfile build configuration and limits Cargo to one compiler job by default to keep server memory stable.
 
 ```bash
 # 1. Clone the repo
@@ -307,20 +306,14 @@ Minimal `data/config.json`:
 # 3. Create accounts file (or add via admin panel after startup)
 echo "[]" > data/credentials.json
 
-# 4. Start
-docker compose up -d
+# 4. Build from source and start (first deployment)
+docker compose up -d --build
 
 # View logs
 docker compose logs -f
 
 # Stop
 docker compose down
-```
-
-For an intentional local source build (not recommended on the production server), use the separate override; the default Compose file never compiles:
-
-```bash
-CARGO_BUILD_JOBS=1 docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
 ```
 
 Access the admin panel at `http://your-server-ip:5678/admin`.
@@ -332,11 +325,11 @@ Access the admin panel at `http://your-server-ip:5678/admin`.
 ```bash
 cd /opt/kiro2cc-proxy
 git pull
-docker compose pull
-docker compose down && docker compose up -d
+docker compose down
+docker compose up -d --build
 ```
 
-> Every push to `master` and every new tag (for example `v1.x.x`) builds and publishes `ghcr.io/mizaawa/kiro2cc-proxy:latest`. See the [Docker workflow](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) and the [GHCR package](https://github.com/mizaawa/kiro2cc-proxy/pkgs/container/kiro2cc-proxy) for status and releases.
+> After source updates, run `git pull` followed by `docker compose up -d --build`. The Docker profile uses one Cargo compiler job and BuildKit cache; do not run `docker compose pull`.
 
 ### Option 2: systemd One-Click Install
 
@@ -814,8 +807,8 @@ Set `host` to `0.0.0.0` in `config.json` and ensure your firewall allows the por
 ```bash
 cd /opt/kiro2cc-proxy
 git pull
-docker compose pull
-docker compose down && docker compose up -d
+docker compose down
+docker compose up -d --build
 ```
 
 **Q: How to update to the latest version (local deployment)**

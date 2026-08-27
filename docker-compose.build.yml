@@ -1,6 +1,0 @@
-services:
-  kiro2cc-proxy:
-    build:
-      context: .
-      args:
-        CARGO_BUILD_JOBS: ${CARGO_BUILD_JOBS:-1}

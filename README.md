@@ -4,10 +4,9 @@
 
 [![Tests](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/test.yaml/badge.svg)](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/test.yaml)
 [![Docker](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml/badge.svg)](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml)
-[![GHCR](https://img.shields.io/badge/GHCR-latest-blue?logo=docker)](https://github.com/mizaawa/kiro2cc-proxy/pkgs/container/kiro2cc-proxy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#-license)
 
-[仓库主页](https://github.com/mizaawa/kiro2cc-proxy) · [版本更新](https://github.com/mizaawa/kiro2cc-proxy/releases) · [Docker 镜像](https://github.com/mizaawa/kiro2cc-proxy/pkgs/container/kiro2cc-proxy) · [部署指南](#-服务器部署linux)
+[仓库主页](https://github.com/mizaawa/kiro2cc-proxy) · [版本更新](https://github.com/mizaawa/kiro2cc-proxy/releases) · [Dockerfile](https://github.com/mizaawa/kiro2cc-proxy/blob/master/Dockerfile) · [部署指南](#-服务器部署linux)
 
 **[🇺🇸 English](README.en.md)** | **🇨🇳 中文**
 
@@ -281,7 +280,7 @@ Region [默认: us-east-1]:
 
 **前置要求**：服务器已安装 Docker 和 Docker Compose。
 
-> **Fork 首次部署**：先在仓库的 **Actions** 页面启用工作流并推送一次 `master`，等待 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 完成。首次生成 GHCR 包后，在包的 **Package settings → Change visibility** 中设为 **Public**，否则部署平台无法匿名拉取镜像。默认 `docker-compose.yml` 只拉取 GHCR，不会在服务器上编译 Rust。
+> **部署方式**：本项目的 Docker 部署使用本地源码构建，不依赖 GHCR。`docker-compose.yml` 已包含 Dockerfile 构建配置，并默认将 Cargo 编译并发限制为 1，避免占满服务器内存。
 
 ```bash
 # 1. 克隆仓库
@@ -311,20 +310,14 @@ nano data/config.json   # 填入 adminPsw
 # 3. 创建账号文件（也可启动后在管理面板添加）
 echo "[]" > data/credentials.json
 
-# 4. 启动
-docker compose up -d
+# 4. 首次启动并构建镜像（源码构建）
+docker compose up -d --build
 
 # 查看日志
 docker compose logs -f
 
 # 停止
 docker compose down
-```
-
-如需在本机主动源码构建（线上服务器不建议），使用独立覆盖文件；默认 Compose 不会触发编译：
-
-```bash
-CARGO_BUILD_JOBS=1 docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
 ```
 
 服务启动后访问 `http://服务器IP:5678/admin` 进入管理面板。
@@ -336,11 +329,11 @@ CARGO_BUILD_JOBS=1 docker compose -f docker-compose.yml -f docker-compose.build.
 ```bash
 cd /opt/kiro2cc-proxy
 git pull
-docker compose pull
-docker compose down && docker compose up -d
+docker compose down
+docker compose up -d --build
 ```
 
-> **说明**：每次推送到 `master` 或推送新 tag（如 `v1.x.x`）后，GitHub Actions 都会构建并推送 `ghcr.io/mizaawa/kiro2cc-proxy:latest`。构建状态见 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml)，已发布版本见 [GHCR 镜像页](https://github.com/mizaawa/kiro2cc-proxy/pkgs/container/kiro2cc-proxy)。
+> **说明**：源码更新后执行 `git pull` 和 `docker compose up -d --build`。构建时使用 Docker 专用 profile、Cargo 并发 1 和 BuildKit 缓存；不需要执行 `docker compose pull`。
 
 ### 方式二：systemd 一键安装
 
@@ -835,8 +828,8 @@ lsof -ti:5678 | xargs kill -9
 ```bash
 cd /opt/kiro2cc-proxy
 git pull
-docker compose pull
-docker compose down && docker compose up -d
+docker compose down
+docker compose up -d --build
 ```
 
 **Q：如何更新到最新版本（本地部署）**

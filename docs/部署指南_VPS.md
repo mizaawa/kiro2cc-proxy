@@ -1,10 +1,8 @@
 # VPS 部署指南（Docker）
 
-## 镜像地址
+## 构建方式
 
-```
-ghcr.io/mizaawa/kiro2cc-proxy:latest
-```
+本项目从仓库源码构建本地 Docker 镜像，不需要登录或拉取 GHCR。
 
 ## 前置要求
 
@@ -19,35 +17,17 @@ curl -fsSL https://get.docker.com | sh
 
 ## 部署步骤
 
-> 首次使用 fork 时，先在仓库 **Actions** 页面启用工作流并推送一次 `master`。等待 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 完成后，在 GHCR 包的 **Package settings → Change visibility** 中设为 **Public**，服务器才能匿名拉取镜像。默认 Compose 只拉取镜像，不会在服务器编译 Rust。
+> Dockerfile 默认使用 `CARGO_BUILD_JOBS=1` 和关闭 LTO 的 Docker profile，避免高核心服务器并行编译时占满内存。首次构建时间较长属于正常现象，后续构建会复用 BuildKit 缓存。
 
-### 1. 创建项目目录
-
-```bash
-mkdir -p ~/kiro2cc-proxy/data
-```
-
-### 2. 创建 docker-compose.yml
+### 1. 克隆仓库
 
 ```bash
-cat > ~/kiro2cc-proxy/docker-compose.yml << 'EOF'
-services:
-  kiro2cc-proxy:
-    image: ghcr.io/mizaawa/kiro2cc-proxy:latest
-    container_name: kiro2cc-proxy
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    ports:
-      - "127.0.0.1:5678:5678"
-    volumes:
-      - ./data:/app/config
-    restart: unless-stopped
-EOF
+git clone https://github.com/mizaawa/kiro2cc-proxy.git ~/kiro2cc-proxy
+cd ~/kiro2cc-proxy
+mkdir -p data
 ```
 
-端口绑定 `127.0.0.1`，仅本机可访问。如需作为 New API 上游渠道，同机部署时填 `http://127.0.0.1:5678` 即可。
-
-### 3. 创建配置文件
+### 2. 创建配置文件
 
 ```bash
 cat > ~/kiro2cc-proxy/data/config.json << 'EOF'
@@ -59,15 +39,14 @@ cat > ~/kiro2cc-proxy/data/config.json << 'EOF'
 EOF
 ```
 
-### 4. 拉取并启动
+### 3. 构建并启动
 
 ```bash
 cd ~/kiro2cc-proxy
-docker compose pull
-docker compose up -d
+CARGO_BUILD_JOBS=1 docker compose up -d --build
 ```
 
-### 5. 验证运行
+### 4. 验证运行
 
 ```bash
 docker compose logs -f
@@ -98,33 +77,20 @@ ssh -L 5678:127.0.0.1:5678 -i /path/to/your/private-key root@服务器IP
 
 隧道建立后，本地浏览器打开 `http://localhost:5678/admin` 即可访问管理后台。
 
-## 版本标签
-
-- `latest` — 每次推送到 `master` 或推送 `v*` tag 时更新
-- `beta` — 每次推送到 `master` 分支时更新
-
 ## 常用运维命令
 
 - 查看日志：`docker compose logs -f`
 - 重启服务：`docker compose restart`
-- 更新镜像：`docker compose pull && docker compose up -d`
+- 更新源码并重建：`git pull && CARGO_BUILD_JOBS=1 docker compose up -d --build`
 - 停止服务：`docker compose down`
 
 ## 更新到最新版本
 
 ```bash
 cd ~/kiro2cc-proxy
-docker compose pull && docker compose up -d
-```
-
-如果是通过 `git clone` 方式部署的（即本地有源码目录）：
-
-```bash
-cd ~/kiro2cc-proxy
 git pull
 docker compose down
-docker compose pull
-docker compose up -d
+CARGO_BUILD_JOBS=1 docker compose up -d --build
 ```
 
 ---
@@ -151,7 +117,10 @@ New API 配 4 个渠道，自动负载均衡。50 并发分散到 4 个 IP，每
 ```yaml
 services:
   kiro2cc-proxy-1:
-    image: ghcr.io/mizaawa/kiro2cc-proxy:latest
+    build:
+      context: .
+      args:
+        CARGO_BUILD_JOBS: 1
     container_name: kiro2cc-proxy-1
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -162,7 +131,10 @@ services:
     restart: unless-stopped
 
   kiro2cc-proxy-2:
-    image: ghcr.io/mizaawa/kiro2cc-proxy:latest
+    build:
+      context: .
+      args:
+        CARGO_BUILD_JOBS: 1
     container_name: kiro2cc-proxy-2
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -225,31 +197,30 @@ docker compose logs -f
 
 ### 更新后服务没有变化
 
-`docker compose pull` 不会自动重建容器，需要同时执行：
+源码更新后需要重新构建镜像并重建容器：
 
 ```bash
-docker compose pull && docker compose up -d
+git pull
+CARGO_BUILD_JOBS=1 docker compose up -d --build
 ```
-
-如果镜像 tag 是 `latest`，本地有缓存时 Docker 不会自动拉取新版本，必须显式 `pull`。
 
 ### 两台服务器功能不一致
 
-检查两台服务器使用的镜像 owner 是否相同：
+检查两台服务器的源码提交和本地镜像 ID 是否相同：
 
 ```bash
-docker ps --format "{{.Image}}"
+git rev-parse --short HEAD
+docker images --no-trunc | head -5
 ```
 
-正确的镜像地址为 `ghcr.io/mizaawa/kiro2cc-proxy:latest`。如果使用了其他 owner 的镜像，拉取的不是本仓库发布的版本，不会包含本项目的最新改动。
+两台服务器都应先执行 `git pull`，再通过 `CARGO_BUILD_JOBS=1 docker compose up -d --build` 构建相同提交。
 
-### 服务器配置低，无法本地构建
+### 构建时内存占用过高
 
-不要在服务器上执行 `docker compose up --build`，直接使用预构建镜像：
+确认使用的是最新 Dockerfile，并保持 `CARGO_BUILD_JOBS=1`。可先停止旧构建，再重新执行低并发构建：
 
 ```bash
-docker compose pull
+pkill -f 'cargo build' || true
+CARGO_BUILD_JOBS=1 docker compose build
 docker compose up -d
 ```
-
-镜像在每次推送到 `master` 或推送 `v*` tag 时由 [GitHub Actions](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 自动构建并推送到 `ghcr.io/mizaawa/kiro2cc-proxy:latest`。
