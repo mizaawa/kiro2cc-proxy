@@ -1,8 +1,7 @@
 services:
   kiro2cc-proxy:
-    image: ghcr.io/${IMAGE_OWNER:-mizaawa}/kiro2cc-proxy:${IMAGE_TAG:-latest}
-    build:
-      context: .
+    image: ${IMAGE_REPOSITORY:-ghcr.io/mizaawa/kiro2cc-proxy}:${IMAGE_TAG:-latest}
+    pull_policy: always
     container_name: kiro2cc-proxy
     extra_hosts:
       - "host.docker.internal:host-gateway"

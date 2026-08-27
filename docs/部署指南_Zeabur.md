@@ -8,7 +8,7 @@ ghcr.io/mizaawa/kiro2cc-proxy:latest
 
 ## 部署步骤
 
-> 首次使用 fork 时，先在仓库 **Actions** 页面启用工作流并推送一次 `master`。等待 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 完成后，在 GHCR 包的 **Package settings → Change visibility** 中设为 **Public**，Zeabur 才能匿名拉取镜像。
+> 首次使用 fork 时，先在仓库 **Actions** 页面启用工作流并推送一次 `master`。等待 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 完成后，在 GHCR 包的 **Package settings → Change visibility** 中设为 **Public**，Zeabur 才能匿名拉取镜像。Zeabur 使用预构建 GHCR 镜像，不执行本地 Dockerfile 编译。
 
 ### 1. 创建服务
 

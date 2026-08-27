@@ -277,7 +277,7 @@ Press `Ctrl+C` in the PowerShell window, or close the window.
 
 **Requirements**: Docker and Docker Compose installed on the server.
 
-> **First deployment from this fork**: enable workflows on the repository's **Actions** page, push once to `master`, and wait for the [Docker workflow](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) to finish. After GHCR creates the package for the first time, open **Package settings → Change visibility** and make it **Public** so deployment platforms can pull it anonymously. Until the image exists, the repository's Compose file falls back to building the Dockerfile locally.
+> **First deployment from this fork**: enable workflows on the repository's **Actions** page, push once to `master`, and wait for the [Docker workflow](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) to finish. After GHCR creates the package for the first time, open **Package settings → Change visibility** and make it **Public** so deployment platforms can pull it anonymously. The default `docker-compose.yml` only pulls GHCR and never compiles Rust on the server.
 
 ```bash
 # 1. Clone the repo
@@ -315,6 +315,12 @@ docker compose logs -f
 
 # Stop
 docker compose down
+```
+
+For an intentional local source build (not recommended on the production server), use the separate override; the default Compose file never compiles:
+
+```bash
+CARGO_BUILD_JOBS=1 docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
 ```
 
 Access the admin panel at `http://your-server-ip:5678/admin`.

@@ -281,7 +281,7 @@ Region [默认: us-east-1]:
 
 **前置要求**：服务器已安装 Docker 和 Docker Compose。
 
-> **Fork 首次部署**：先在仓库的 **Actions** 页面启用工作流并推送一次 `master`，等待 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 完成。首次生成 GHCR 包后，在包的 **Package settings → Change visibility** 中设为 **Public**，否则部署平台无法匿名拉取镜像。镜像尚未发布时，仓库自带的 Compose 配置会回退到本地 Dockerfile 构建。
+> **Fork 首次部署**：先在仓库的 **Actions** 页面启用工作流并推送一次 `master`，等待 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 完成。首次生成 GHCR 包后，在包的 **Package settings → Change visibility** 中设为 **Public**，否则部署平台无法匿名拉取镜像。默认 `docker-compose.yml` 只拉取 GHCR，不会在服务器上编译 Rust。
 
 ```bash
 # 1. 克隆仓库
@@ -319,6 +319,12 @@ docker compose logs -f
 
 # 停止
 docker compose down
+```
+
+如需在本机主动源码构建（线上服务器不建议），使用独立覆盖文件；默认 Compose 不会触发编译：
+
+```bash
+CARGO_BUILD_JOBS=1 docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
 ```
 
 服务启动后访问 `http://服务器IP:5678/admin` 进入管理面板。

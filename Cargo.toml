@@ -9,6 +9,15 @@ authors = ["Harllan He"]
 lto = "thin"
 strip = true
 
+# Docker builds run on shared VPS instances. Avoid release LTO's high peak
+# memory usage while keeping the normal release profile fully optimized.
+[profile.docker]
+inherits = "release"
+lto = false
+codegen-units = 16
+debug = false
+strip = true
+
 [dependencies]
 axum = "0.8"
 tokio = { version = "1.0", features = ["full"] }

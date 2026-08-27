@@ -18,6 +18,9 @@ FROM rust:1-alpine AS builder
 
 RUN apk add --no-cache musl-dev openssl-dev openssl-libs-static
 
+ARG CARGO_BUILD_JOBS=1
+ENV CARGO_BUILD_JOBS=${CARGO_BUILD_JOBS}
+
 WORKDIR /app
 COPY Cargo.toml Cargo.lock ./
 COPY src ./src
@@ -25,14 +28,18 @@ COPY assets ./assets
 COPY --from=frontend-builder /app/admin-ui/dist /app/admin-ui/dist
 COPY --from=frontend-builder /app/user-ui/dist /app/user-ui/dist
 
-RUN cargo build --release --locked
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/app/target \
+    cargo build --profile docker --locked --jobs ${CARGO_BUILD_JOBS} && \
+    cp target/docker/kiro2cc-proxy /tmp/kiro2cc-proxy
 
 FROM alpine:3.21
 
 RUN apk add --no-cache ca-certificates
 
 WORKDIR /app
-COPY --from=builder /app/target/release/kiro2cc-proxy /app/kiro2cc-proxy
+COPY --from=builder /tmp/kiro2cc-proxy /app/kiro2cc-proxy
 
 EXPOSE 5678
 

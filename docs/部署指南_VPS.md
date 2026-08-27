@@ -19,7 +19,7 @@ curl -fsSL https://get.docker.com | sh
 
 ## 部署步骤
 
-> 首次使用 fork 时，先在仓库 **Actions** 页面启用工作流并推送一次 `master`。等待 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 完成后，在 GHCR 包的 **Package settings → Change visibility** 中设为 **Public**，服务器才能匿名拉取镜像。
+> 首次使用 fork 时，先在仓库 **Actions** 页面启用工作流并推送一次 `master`。等待 [Docker 工作流](https://github.com/mizaawa/kiro2cc-proxy/actions/workflows/docker-build.yaml) 完成后，在 GHCR 包的 **Package settings → Change visibility** 中设为 **Public**，服务器才能匿名拉取镜像。默认 Compose 只拉取镜像，不会在服务器编译 Rust。
 
 ### 1. 创建项目目录
 
